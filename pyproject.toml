@@ -1,0 +1,14 @@
+[project]
+name = "ComfyUI-OneForOne"
+description = "Node:Image Fit Calculator"
+version = "1.0.0"
+license = {file = "LICENSE"}
+
+[project.urls]
+Repository = "https://github.com/Meettya/ComfyUI-OneForOne"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "meettya"
+DisplayName = "ComfyUI-OneForOne"
+Icon = ""
