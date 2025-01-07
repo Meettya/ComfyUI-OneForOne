@@ -1,8 +1,9 @@
 [project]
-name = "ComfyUI-OneForOne"
+name = "comfyui-oneforone"
 description = "Node:Image Fit Calculator"
 version = "1.0.0"
 license = {file = "LICENSE"}
+dependencies  = ["numpy"]
 
 [project.urls]
 Repository = "https://github.com/Meettya/ComfyUI-OneForOne"
