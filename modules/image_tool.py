@@ -1,3 +1,6 @@
+from numpy import ndarray
+from typing import Union
+
 from .util import get_sizes
 
 
@@ -17,7 +20,7 @@ class OFOImageFit:
                         "min": 0.0,
                         "max": 1.0,
                         "step": 0.01,
-                        "round": 0.01,
+                        "round": 0.001,
                         "display": "number",
                         "lazy": True,
                     },
@@ -29,7 +32,7 @@ class OFOImageFit:
                         "min": 0.0,
                         "max": 1.0,
                         "step": 0.01,
-                        "round": 0.01,
+                        "round": 0.001,
                         "display": "number",
                         "lazy": True,
                     },
@@ -57,13 +60,25 @@ class OFOImageFit:
         "INT",
         "INT",
     )
-    RETURN_NAMES = ("IMAGE_WIDTH", "IMAGE_HEIGHT", "PAD_TOP", "PAD_RIGHT", "PAD_BOTTOM", "PAD_LEFT")
+    RETURN_NAMES = (
+        "IMAGE_WIDTH",
+        "IMAGE_HEIGHT",
+        "PAD_TOP",
+        "PAD_RIGHT",
+        "PAD_BOTTOM",
+        "PAD_LEFT",
+    )
 
     FUNCTION = "calculate"
     CATEGORY = "OneForOne"
 
     def calculate(
-        self, latent, image, width_position=0.5, height_position=0.5, scale=1.0
+        self,
+        latent: Union[dict, ndarray],
+        image: ndarray,
+        width_position: float = 0.5,
+        height_position: float = 0.5,
+        scale: float = 1.0,
     ):
         """
         Calculate new dimensions and paddings for image, based on latent and given parameters.
@@ -77,7 +92,7 @@ class OFOImageFit:
 
         Returns:
             tuple: A tuple containing six integers representing the new width, height, top, right, bottom, and left padding values.
-        """   
+        """
         # get sizes
         latent_height, latent_width = get_sizes(latent)
         image_height, image_width = get_sizes(image)
