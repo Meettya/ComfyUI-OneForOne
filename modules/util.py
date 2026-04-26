@@ -1,14 +1,12 @@
 from numpy import ndarray
-from typing import Union, Tuple
-
-# latent to pixel scale factor
-SCALE = 8
+from typing import Tuple
 
 
-def get_sizes(target: Union[dict, ndarray]) -> Tuple[int, int]:
-    if isinstance(target, dict) and "samples" in target:
-        # Latent height, width
-        return (target["samples"].shape[2] * SCALE, target["samples"].shape[3] * SCALE)
-    else:
-        # Image height, width
-        return (target.shape[1], target.shape[2])
+def get_latent_size(latent: dict, scale_factor: int = 8) -> Tuple[int, int]:
+    """Convert latent dimensions to pixel dimensions using scale factor."""
+    return (latent["samples"].shape[2] * scale_factor, latent["samples"].shape[3] * scale_factor)
+
+
+def get_image_size(image: ndarray) -> Tuple[int, int]:
+    """Get image height and width from numpy array."""
+    return (image.shape[1], image.shape[2])
