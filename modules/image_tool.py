@@ -22,7 +22,7 @@ class OFOImageFit:
             "required": {
                 "latent": ("LATENT",),
                 "image": ("IMAGE",),
-                "latent_scale": (SCALE_OPTIONS,),
+                "latent_scale": (SCALE_OPTIONS, {"default": SCALE_8X}),
             },
             "optional": {
                 "width_position": (
@@ -108,24 +108,46 @@ class OFOImageFit:
             tuple: A tuple containing six integers representing the new width, height, top, right, bottom, and left padding values.
         """
         scale_factor = SCALE_FACTOR_MAP[latent_scale]
-        
+
         latent_height, latent_width = get_latent_size(latent, scale_factor)
         image_height, image_width = get_image_size(image)
 
-        # get minimum scale
+        # Compute base scaling (fit inside latent)
         scale_w = latent_width / image_width
         scale_h = latent_height / image_height
         min_scale = min(scale_w, scale_h) * scale
 
-        # scale image
-        new_image_width = round(image_width * min_scale)
-        new_image_height = round(image_height * min_scale)
+        # Initial candidate dimensions (floored to avoid exceeding latent)
+        raw_width = int(image_width * min_scale)
+        raw_height = int(image_height * min_scale)
 
-        # calculate padding
-        padding_left = round((latent_width - new_image_width) * width_position)
-        padding_right = latent_width - new_image_width - padding_left
-        padding_bottom = round((latent_height - new_image_height) * height_position)
-        padding_top = latent_height - new_image_height - padding_bottom
+        # Ensure raw dimensions do not exceed latent bounds (safety)
+        raw_width = min(raw_width, latent_width)
+        raw_height = min(raw_height, latent_height)
+
+        # ----- Adjust to multiples of 8 -----
+        # We prefer rounding down to the nearest multiple of 8 (keep inside latent).
+        # But we also need to ensure we don't lose too much size.
+        # Let's find the largest multiple of 8 <= raw_width and <= raw_height.
+        target_width = (raw_width // 8) * 8
+        target_height = (raw_height // 8) * 8
+
+        # However, if the difference is too large (more than 7 pixels), we could try rounding up if still fits.
+        # But to be safe and keep exact fit, we just round down.
+        # If rounding down reduces size too much, the user can increase `scale`.
+        new_image_width = target_width
+        new_image_height = target_height
+
+        # ----- Recompute paddings based on final aligned sizes -----
+        # Horizontal padding
+        remaining_width = latent_width - new_image_width
+        padding_left = int(remaining_width * width_position)
+        padding_right = remaining_width - padding_left
+
+        # Vertical padding
+        remaining_height = latent_height - new_image_height
+        padding_top = int(remaining_height * height_position)
+        padding_bottom = remaining_height - padding_top
 
         return (
             new_image_width,
